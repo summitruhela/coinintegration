@@ -1,0 +1,88 @@
+{
+  "Bitcoin": {
+    "testnet": {
+      "username": "sumit",
+      "password": "Mobiloitte1",
+      "network": "regtest",
+      "port": 8332
+    },
+    "mainnet": {
+      "username": "imran",
+      "password": "whoami",
+      "network": "mainnet",
+      "port": 8332
+    }
+  },
+  "Litecoin": {
+    "testnet": {
+      "username": "imran",
+      "password": "whoami",
+      "network": "regtest",
+      "port": 8334
+    },
+    "mainnet": {
+      "username": "imran",
+      "password": "whoami",
+      "network": "mainnet",
+      "port": 8334
+    }
+  },
+  "VergeCurrency": {
+    "testnet": {
+      "username": "imran",
+      "password": "rahman",
+      "network": "regtest",
+      "port": 20102
+    },
+    "mainnet": {
+      "username": "imran",
+      "password": "rahman",
+      "network": "mainnet",
+      "port": 20102
+    }
+  },
+  "EthereumCoin": {
+    "testnet": {
+      "username": "kaifi",
+      "password": "azmi",
+      "network": "regtest",
+      "port":8545
+    },
+    "mainnet": {
+      "username": "kaifi",
+      "password": "azmi",
+      "network": "mainnet",
+      "port":8545
+    }
+  },
+
+  "aidos": {
+    "testnet": {
+      "username": "mobiloitte",
+      "password": "Mobiloitte1",
+      "network": "regtest",
+      "port":8332
+    },
+    "mainnet": {
+      "username": "imran",
+      "password": "whoami",
+      "network": "mainnet",
+      "port": 8332
+    }
+},
+
+"bitCoinDiamond": {
+  "testnet": {
+    "username": "sumit",
+    "password": "Mobiloitte1",
+    "network": "regtest",
+    "port":8332
+  },
+  "mainnet": {
+    "username": "imran",
+    "password": "whoami",
+    "network": "mainnet",
+    "port": 8332
+  }
+}
+}
