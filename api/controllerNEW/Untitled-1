@@ -1,0 +1,94 @@
+                 
+     req.body.AmountToTransfer = getPreciseVal(req.body.AmountToTransfer, 8);
+    var changeaddress = req.body.ChangeAddress ? req.body.ChangeAddress : req.body.sendFrom;
+
+   let total = 0, unspent_arr = [];
+    const brak = new Error('broke')
+    brak.type= 'break';
+    listUnspent().then(unspents => {
+        async.forEachSeries(unspents, (unspent, next) => {
+            console.log(unspent.txid);
+            client.getTransaction(unspent.txid).then((success) => {
+                next();
+            }).catch((err) => {
+                console.log("ERROR =================================")
+               let tx_data = JSON.parse(err.text);
+                if (err && err.text && tx_data && tx_data.result && tx_data.result.details.length) {
+                    tx_data.result.details.forEach((item) => {
+                        if (item.address === req.body.SendFrom && item.category === "receive" && item.amount === unspent.amount) {
+                             console.log("Item -------->",item,   unspent)
+                            total = bigNumberOpera(total, item.amount, '+', 8);
+                            
+                           console.log("We are here",total)
+                               unspent_arr.push(unspent);
+                        }
+                    })
+                     console.log("total is ==>>", total, unspent_arr);
+                }
+                    if(total >  req.body.AmountToTransfer)
+                            {
+                           total = total;
+                          
+                          return next(brak)
+                            }
+               else{
+                    next();
+                }      
+ })
+        }, (end_of_iter) => {
+            console.log("final total is ", total, "amt to transfer", req.body.AmountToTransfer, unspent_arr);
+            //if (total >= bigNumberOpera(req.body.AmountToTransfer, 0.1, '+', 8)) {
+                if (total >= bigNumberOpera(req.body.AmountToTransfer, 0.1, '+', 8)) {
+               calculateTxFee(unspent_arr.length, 1, 6).then(fee => {
+                    console.log("inner fee ===>", fee);
+                    var amountFee = req.body.AmountToTransfer;
+                     createRawTransaction_withChange(unspent_arr,req.body.SendTo,bigNumberOpera(req.body.AmountToTransfer, 0.1, '+', 8),0.1,changeaddress,bigNumberOpera(total, amountFee, '-', 8)).then(rawtxid => {
+                            createRawTransaction(unspent_arr, req.body.SendTo, req.body.AmountToTransfer, 0.1).then(rawtxid => {
+                            console.log("rawtxid===>", rawtxid);
+                           signRawTransaction(rawtxid).then(signedTransaction => {
+                                console.log("signedTransaction===>", signedTransaction);
+                             sendRawTx(signedTransaction.hex, (txn_id) => {
+                                    client.decodeRawTransaction(signedTransaction.hex).then((get_tx_id) => {
+                                        console.log("data is ==>>", get_tx_id)
+                                        res.json({
+                                            'code': 200,
+                                            'tx-hash': get_tx_id.txid,
+                                            'fee': Utils.round(fee, '8'),
+                                            'sent-amount':req.body.AmountToTransfer
+                                        });
+                                    }).catch((err_tx_id) => {
+                                        res.json({
+                                            'code': 400,
+                                            'message': "Txn was not submitted."
+  });
+                                    })
+                                })
+                            })
+                    })
+              // })
+           })
+           .catch((err_tx_id) => {
+           res.json({
+               'code': 400,
+                'message': "Txn was not submitted."
+           });
+        })
+        })
+    }
+            else {
+                              console.log("Unspents are ======>");
+                res.send({
+                    code: 400,
+                    message: "Not enough funds to proceed the withdraw."
+                })
+            }
+         })
+    })
+        .catch((err) => {
+            console.log("==>>1234", err);
+            res.json({
+                'code': 500,
+                "message": "No unspent transaction found for given address."
+ });
+        })
+};
